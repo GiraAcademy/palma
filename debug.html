@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <title>Debug - Panama AZORD</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .test {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .success {
+      background: #d4edda;
+      border-color: #c3e6cb;
+    }
+
+    .error {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Diagnóstico de funcionalidades</h1>
+
+  <div id="results"></div>
+
+  <!-- Simular estructura básica -->
+  <div style="display: none;">
+    <button class="tab-button" aria-controls="test-tab">Test Tab</button>
+    <div id="test-tab" class="tab-panel">Test Panel</div>
+
+    <input type="checkbox" id="GoogleSatelliteHybrid" checked>
+    <input type="checkbox" id="Ortomosaico" checked>
+    <input type="checkbox" id="Clasificacion">
+    <input type="checkbox" id="Lote" checked>
+    <input type="checkbox" id="Fotocentro" checked>
+
+    <div id="fotocentro-code"></div>
+    <div id="selected-fotocentro-info"></div>
+    <div id="image-viewer"></div>
+    <button id="btn-problem">Problem</button>
+    <button id="btn-attention">Attention</button>
+    <div id="note-section"></div>
+    <textarea id="fotocentro-note"></textarea>
+    <button id="btn-save-note">Save Note</button>
+  </div>
+
+  <script>
+    const results = document.getElementById('results');
+
+    function addResult(test, success, message) {
+      const div = document.createElement('div');
+      div.className = `test ${success ? 'success' : 'error'}`;
+      div.innerHTML = `<strong>${test}:</strong> ${message}`;
+      results.appendChild(div);
+    }
+
+    // Test 1: Tailwind CSS
+    try {
+      // Crear elemento con clases de Tailwind para verificar si funciona
+      const testElement = document.createElement('div');
+      testElement.className = 'bg-panama-green text-white p-4';
+      document.body.appendChild(testElement);
+      const styles = getComputedStyle(testElement);
+      const hasCustomColor = styles.backgroundColor === 'rgb(0, 203, 169)';
+      document.body.removeChild(testElement);
+      addResult('Tailwind CSS + Colores personalizados', hasCustomColor,
+        hasCustomColor ? 'Funcionando correctamente' : 'Colores personalizados no cargados');
+    } catch (e) {
+      addResult('Tailwind CSS', false, `Error: ${e.message}`);
+    }
+
+    // Test 2: Función showTab
+    try {
+      const hasShowTab = typeof window.showTab === 'function';
+      addResult('Función showTab', hasShowTab,
+        hasShowTab ? 'Función definida' : 'Función no encontrada');
+    } catch (e) {
+      addResult('Función showTab', false, `Error: ${e.message}`);
+    }
+
+    // Test 3: Variables globales del mapa
+    try {
+      const hasMapLayers = typeof window.mapLayers === 'object';
+      addResult('Variable mapLayers', hasMapLayers,
+        hasMapLayers ? 'Variable definida' : 'Variable no encontrada');
+    } catch (e) {
+      addResult('Variable mapLayers', false, `Error: ${e.message}`);
+    }
+
+    // Test 4: Elementos DOM esenciales
+    const essentialElements = [
+      'GoogleSatelliteHybrid', 'Ortomosaico', 'Clasificacion',
+      'Lote', 'Fotocentro', 'fotocentro-code', 'image-viewer'
+    ];
+
+    essentialElements.forEach(id => {
+      const element = document.getElementById(id);
+      addResult(`Elemento #${id}`, !!element,
+        element ? 'Encontrado' : 'No encontrado');
+    });
+
+    // Test 5: Clases CSS personalizadas
+    try {
+      const tabButton = document.querySelector('.tab-button');
+      const tabPanel = document.querySelector('.tab-panel');
+      addResult('Clases .tab-button y .tab-panel', !!(tabButton && tabPanel),
+        (tabButton && tabPanel) ? 'Encontradas' : 'No encontradas');
+    } catch (e) {
+      addResult('Clases CSS', false, `Error: ${e.message}`);
+    }
+
+    // Test 6: Leaflet
+    try {
+      const hasLeaflet = typeof L !== 'undefined';
+      addResult('Librería Leaflet', hasLeaflet,
+        hasLeaflet ? `Versión ${L.version || 'desconocida'}` : 'No encontrada');
+    } catch (e) {
+      addResult('Librería Leaflet', false, `Error: ${e.message}`);
+    }
+
+    // Test 7: Datos del mapa
+    try {
+      const hasLoteData = typeof json_Lote_3 !== 'undefined';
+      const hasFotocentroData = typeof json_Fotocentro_4 !== 'undefined';
+      addResult('Datos Lote_3', hasLoteData,
+        hasLoteData ? 'Datos cargados' : 'Datos no encontrados');
+      addResult('Datos Fotocentro_4', hasFotocentroData,
+        hasFotocentroData ? 'Datos cargados' : 'Datos no encontrados');
+    } catch (e) {
+      addResult('Datos del mapa', false, `Error: ${e.message}`);
+    }
+  </script>
+
+  <!-- Cargar scripts en el mismo orden que la aplicación principal -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/tailwind.config.js"></script>
+  <script src="js/qgis2web_expressions.js"></script>
+  <script src="js/leaflet.js"></script>
+  <script src="js/L.Control.Locate.min.js"></script>
+  <script src="js/leaflet.rotatedMarker.js"></script>
+  <script src="js/leaflet.pattern.js"></script>
+  <script src="js/leaflet-hash.js"></script>
+  <script src="js/Autolinker.min.js"></script>
+  <script src="js/rbush.min.js"></script>
+  <script src="js/labelgun.min.js"></script>
+  <script src="js/labels.js"></script>
+  <script src="js/leaflet-search.js"></script>
+  <script src="data/Lote_3.js"></script>
+  <script src="data/Fotocentro_4.js"></script>
+  <script src="js/main.js"></script>
+
+  <script>
+    // Ejecutar diagnósticos adicionales después de cargar todo
+    setTimeout(() => {
+      // Test adicional después de cargar scripts
+      try {
+        const hasAutolinker = typeof Autolinker !== 'undefined';
+        addResult('Autolinker', hasAutolinker,
+          hasAutolinker ? 'Cargado correctamente' : 'No encontrado');
+      } catch (e) {
+        addResult('Autolinker', false, `Error: ${e.message}`);
+      }
+
+      // Verificar si main.js cargó correctamente
+      try {
+        const hasMainFunctions = typeof initializeApp === 'function';
+        addResult('main.js - initializeApp', hasMainFunctions,
+          hasMainFunctions ? 'Función encontrada' : 'Función no encontrada');
+      } catch (e) {
+        addResult('main.js', false, `Error: ${e.message}`);
+      }
+    }, 1000);
+  </script>
+</body>
+
+</html>

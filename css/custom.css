@@ -1,0 +1,541 @@
+/* Estilos personalizados para Panama AZORD - Complemento a Tailwind CSS */
+
+/* === RESPONSIVE MOBILE MENU === */
+@media (max-width: 1023px) {
+    .sidebar-open {
+        transform: translateX(0) !important;
+    }
+
+    .sidebar-open + #sidebar-overlay {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    .main-content {
+        position: relative;
+    }
+
+    .main-content.sidebar-open {
+        overflow: hidden;
+    }
+
+    /* Ajustar el mapa en mobile */
+    #map {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    /* Ajustes del sidebar en mobile */
+    #sidebar {
+        height: 100vh !important;
+        top: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    /* Hacer el contenido del sidebar más accesible en mobile */
+    .sidebar-scroll {
+        padding: 16px 20px 40px 20px !important; /* Padding inferior adicional */
+        height: calc(100vh - 140px) !important; /* Considerando header principal (70px) + header sidebar móvil (70px) */
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Optimizar imagen viewer para mobile */
+    .image-viewer {
+        min-height: 150px !important;
+        padding: 15px !important;
+    }
+
+    /* Optimizar botones en mobile */
+    .grid.grid-cols-2 {
+        gap: 8px !important;
+    }
+
+    .grid.grid-cols-2 button {
+        padding: 12px 8px !important;
+        font-size: 14px !important;
+        min-height: 48px !important; /* Altura mínima para touch targets */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    /* Asegurar que los botones de validación sean visibles */
+    #btn-problem,
+    #btn-attention {
+        width: 100% !important;
+        border-width: 2px !important;
+        font-weight: 600 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+
+    /* Mejorar la sección de acciones de validación */
+    .section {
+        margin-bottom: 20px !important;
+    }
+
+    /* Asegurar espacio suficiente para los botones de validación */
+    .section:last-child {
+        padding-bottom: 30px !important;
+        margin-bottom: 30px !important;
+    }
+
+    /* Contenedor específico para los botones de validación */
+    .grid.grid-cols-2 {
+        margin-bottom: 20px !important;
+    }    /* Ajustar pestañas en mobile */
+    .tab-button {
+        padding: 12px 8px !important;
+        font-size: 13px !important;
+    }
+
+    /* Optimizar notas en mobile */
+    #fotocentro-note {
+        min-height: 80px !important;
+        max-height: 120px !important;
+    }
+
+    /* Ajustar header del sidebar */
+    .lg\\:hidden {
+        border-bottom: 2px solid #e2e8f0;
+        background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 50%, #eff6ff 100%);
+    }
+
+    /* Asegurar visibilidad del contenido en mobile */
+    #fotocentro-actions {
+        position: relative !important;
+        z-index: 10 !important;
+        background: white !important;
+        padding: 16px 0 40px 0 !important; /* Padding inferior adicional */
+    }
+
+    /* Específicamente para las acciones de validación */
+    #fotocentro-actions .section:last-child {
+        padding-bottom: 40px !important;
+        min-height: auto !important;
+    }
+}
+
+/* Para pantallas grandes, asegurar que el sidebar esté siempre visible */
+@media (min-width: 1024px) {
+    #sidebar {
+        position: relative !important;
+        transform: translateX(0) !important;
+        inset: auto !important;
+        z-index: auto !important;
+    }
+
+    #sidebar-overlay {
+        display: none !important;
+    }
+
+    #mobile-menu-btn,
+    #sidebar-close-btn {
+        display: none !important;
+    }
+}
+
+/* === PESTAÑAS === */
+.tab-panel {
+    display: none !important;
+}
+
+.tab-panel.active {
+    display: block !important;
+}
+
+.tab-button.active {
+    color: #222222 !important;
+    font-weight: 600 !important;
+    border-bottom-color: #0d9488 !important; /* teal-600 */
+    background: rgba(13, 148, 136, 0.08) !important; /* teal-600 with opacity */
+}
+
+/* Asegurar que las clases de Tailwind funcionen correctamente */
+.tab-button:hover {
+    background-color: rgba(13, 148, 136, 0.05) !important; /* teal-600 with opacity */
+}
+
+.tab-button:focus {
+    outline: 2px solid #0d9488 !important; /* teal-600 */
+    outline-offset: 2px !important;
+}
+
+/* === SIDEBAR SCROLL === */
+.sidebar-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(13, 148, 136, 0.3) transparent; /* teal-600 */
+}
+
+.sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(13, 148, 136, 0.3); /* teal-600 */
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(13, 148, 136, 0.5); /* teal-600 */
+}
+
+/* Asegurar que el contenido no se corte en el scroll */
+.sidebar-content {
+    padding-bottom: 20px;
+}
+
+/* === SIDEBAR === */
+.sidebar-section {
+    margin-bottom: 25px;
+    position: relative;
+    z-index: 1;
+}
+
+.sidebar-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(5, 80, 89, 0.08);
+    font-weight: 400;
+    line-height: 1.4;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    color: #333333;
+    font-size: 14px;
+}
+
+/* === FOTOCENTROS === */
+.fotocentro-info {
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    background: rgba(13, 148, 136, 0.08); /* teal-600 with opacity */
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #0d9488; /* teal-600 */
+}
+
+/* === VISUALIZADOR DE IMÁGENES === */
+.image-viewer {
+    margin-top: 15px;
+    border: 2px dashed #0d9488; /* teal-600 */
+    border-radius: 8px;
+    padding: 20px;
+    background: rgba(13, 148, 136, 0.02); /* teal-600 with very low opacity */
+    text-align: center;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-viewer.has-image {
+    border-style: solid;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(5, 80, 89, 0.08);
+}
+
+.image-viewer img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-placeholder {
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+/* === SECCIONES === */
+.section {
+    margin-bottom: 24px;
+    background: none;
+    border-radius: 8px;
+    padding: 0;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #222;
+    margin: 12px 0;
+    background: none;
+    border: none;
+    padding: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, #bdc3c7, transparent);
+}
+
+/* === NOTAS === */
+.notes-container {
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    background: #ffffff;
+    margin-bottom: 18px;
+    overflow: hidden;
+}
+
+/* === BOTONES DE VALIDACIÓN === */
+/* Botón Problemático activo */
+#btn-problem.active {
+    background-color: #dc2626 !important; /* red-600 */
+    color: white !important;
+    border-color: #dc2626 !important;
+}
+
+#btn-problem.active:hover {
+    background-color: #b91c1c !important; /* red-700 */
+    border-color: #b91c1c !important;
+}
+
+/* Botón Revisar/Atención activo */
+#btn-attention.active {
+    background-color: #ea580c !important; /* orange-600 */
+    color: white !important;
+    border-color: #ea580c !important;
+}
+
+#btn-attention.active:hover {
+    background-color: #c2410c !important; /* orange-700 */
+    border-color: #c2410c !important;
+}
+
+/* === RESPONSIVE DESIGN === */
+@media (max-width: 768px) {
+    aside {
+        width: 280px;
+    }
+}
+
+@media (max-width: 600px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    aside {
+        width: 100%;
+        height: 220px;
+        order: 2;
+    }
+
+    #map {
+        order: 1;
+        height: calc(100vh - 280px);
+    }
+
+    header {
+        height: 60px;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+}
+
+/* === LEAFLET CUSTOM STYLES === */
+.leaflet-control-zoom a {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(5, 80, 89, 0.15) !important;
+    color: #333333 !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(5, 80, 89, 0.08) !important;
+}
+
+.leaflet-control-zoom a:hover {
+    background: linear-gradient(135deg, #0d9488 0%, #3b82f6 100%) !important; /* teal-600 to blue-500 */
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important; /* teal-600 shadow */
+}
+
+.leaflet-control-locate a {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid rgba(148, 163, 184, 0.3) !important; /* slate-400 */
+    color: #333333 !important;
+    box-shadow: 0 2px 8px rgba(148, 163, 184, 0.15) !important; /* slate-400 shadow */
+}
+
+.leaflet-control-locate a:hover {
+    background: linear-gradient(135deg, #0d9488 0%, #3b82f6 100%) !important; /* teal-600 to blue-500 */
+    color: white !important;
+}
+
+/* === HOME CONTROL === */
+.leaflet-control-custom {
+    background: rgba(255, 255, 255, 0.98) !important;
+    border: 1px solid rgba(148, 163, 184, 0.3) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(148, 163, 184, 0.15) !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    user-select: none !important;
+}
+
+.leaflet-control-custom:hover {
+    background: linear-gradient(135deg, #0d9488 0%, #3b82f6 100%) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3) !important;
+}
+
+.leaflet-control-custom:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 6px rgba(13, 148, 136, 0.4) !important;
+}
+
+/* === COORDINATE DISPLAY === */
+.coordinate-display {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(203, 213, 225, 0.6);
+    border-radius: 8px;
+    padding: 5px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    min-width: 120px;
+    transition: all 0.2s ease;
+}
+
+.coordinate-display:hover {
+    background: rgba(255, 255, 255, 0.98);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.coordinate-line {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.coord-label {
+    font-weight: 700;
+    color: #111827;
+}
+
+.coord-value {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: #111827;
+}
+
+.coord-separator {
+    margin: 0 4px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.scale-line {
+    text-align: center;
+    border-top: 1px solid rgba(203, 213, 225, 0.4);
+}
+
+.scale-value {
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    color: #111827;
+    font-size: 12px;
+}
+
+/* Responsive adjustments for coordinate display */
+@media (max-width: 768px) {
+    .coordinate-display {
+        bottom: 15px;
+        right: 15px;
+        padding: 6px 10px;
+        font-size: 12px;
+        min-width: 180px;
+    }
+
+    .scale-value {
+        font-size: 11px;
+    }
+}
+
+/* === POPUP STYLES === */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-popup-content {
+    margin: 12px 16px !important;
+    line-height: 1.4 !important;
+}
+
+.leaflet-popup-content table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+}
+
+.leaflet-popup-content th {
+    font-family: 'Montserrat', sans-serif !important;
+    font-weight: 600 !important;
+    color: #0d9488 !important;
+    font-size: 13px !important;
+    text-align: left !important;
+    padding: 6px 12px 6px 0 !important;
+    vertical-align: top !important;
+}
+
+.leaflet-popup-content td {
+    font-family: 'Montserrat', sans-serif !important;
+    color: #374151 !important;
+    font-size: 13px !important;
+    padding: 6px 0 !important;
+    font-weight: 500 !important;
+}
+
+.leaflet-popup-content a {
+    color: #3b82f6 !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    border-bottom: 1px solid #3b82f6 !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+}
+
+.leaflet-popup-content a:hover {
+    color: #1d4ed8 !important;
+    border-bottom-color: #1d4ed8 !important;
+    transform: translateY(-1px) !important;
+}
+
+.leaflet-popup-tip {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
+}

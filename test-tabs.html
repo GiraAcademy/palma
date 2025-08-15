@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <title>Test de Funcionalidad - Pestañas</title>
+  <link rel="stylesheet" href="css/custom.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="js/tailwind.config.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .test-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="test-container">
+    <h1>Prueba de Funcionalidad - Sistema de Pestañas</h1>
+
+    <!-- Sistema de pestañas simplificado -->
+    <nav aria-label="Navegación de pestañas">
+      <ul class="list-none m-0 p-0 flex border-b-2 border-gray-100 bg-white" role="tablist">
+        <li class="flex-1 flex" role="presentation">
+          <button
+            class="tab-button active flex-1 px-2 py-3 bg-transparent border-none text-gray-700 text-sm font-medium cursor-pointer transition-all duration-300 border-b-[3px] border-transparent flex items-center justify-center gap-2"
+            id="tab-test1" role="tab" aria-selected="true" aria-controls="test1" tabindex="0">
+            🛰️ Pestaña 1
+          </button>
+        </li>
+        <li class="flex-1 flex" role="presentation">
+          <button
+            class="tab-button flex-1 px-2 py-3 bg-transparent border-none text-gray-700 text-sm font-medium cursor-pointer transition-all duration-300 border-b-[3px] border-transparent flex items-center justify-center gap-2"
+            id="tab-test2" role="tab" aria-selected="false" aria-controls="test2" tabindex="-1">
+            📊 Pestaña 2
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Contenido de las pestañas -->
+    <div class="mt-4">
+      <section id="test1" class="tab-panel active block p-4 border border-gray-200 rounded" role="tabpanel">
+        <h2>Contenido de Pestaña 1</h2>
+        <p>Esta es la primera pestaña. Debería estar visible por defecto.</p>
+      </section>
+
+      <section id="test2" class="tab-panel p-4 border border-gray-200 rounded" role="tabpanel" hidden>
+        <h2>Contenido de Pestaña 2</h2>
+        <p>Esta es la segunda pestaña. Solo debería ser visible cuando se hace clic en su botón.</p>
+      </section>
+    </div>
+
+    <!-- Estado de debug -->
+    <div class="mt-6 p-4 bg-gray-100 rounded">
+      <h3>Estado de Debug:</h3>
+      <div id="debug-info"></div>
+      <button onclick="testShowTab()" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded">
+        Probar función showTab
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Funcionalidad de pestañas (copiada del main.js)
+    window.showTab = function (tabName, evt) {
+      const panels = document.querySelectorAll('.tab-panel');
+      const buttons = document.querySelectorAll('.tab-button');
+
+      panels.forEach(panel => {
+        panel.classList.remove('active');
+        panel.setAttribute('hidden', '');
+        panel.setAttribute('aria-hidden', 'true');
+      });
+      buttons.forEach(button => {
+        button.classList.remove('active');
+        button.setAttribute('aria-selected', 'false');
+        button.setAttribute('tabindex', '-1');
+      });
+
+      const panel = document.getElementById(tabName);
+      panel.classList.add('active');
+      panel.removeAttribute('hidden');
+      panel.setAttribute('aria-hidden', 'false');
+
+      // Buscar el botón relacionado
+      let button = null;
+      if (evt && evt.currentTarget) {
+        button = evt.currentTarget;
+      } else {
+        // fallback: buscar por aria-controls
+        button = document.querySelector('.tab-button[aria-controls="' + tabName + '"]');
+      }
+      if (button) {
+        button.classList.add('active');
+        button.setAttribute('aria-selected', 'true');
+        button.setAttribute('tabindex', '0');
+        button.focus();
+      }
+    };
+
+    // Configurar listeners
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.addEventListener('click', function (evt) {
+        const tab = button.getAttribute('aria-controls');
+        console.log('Clic en pestaña:', tab);
+        window.showTab(tab, evt);
+        updateDebugInfo();
+      });
+    });
+
+    function updateDebugInfo() {
+      const debugInfo = document.getElementById('debug-info');
+      const activeButton = document.querySelector('.tab-button.active');
+      const activePanel = document.querySelector('.tab-panel.active');
+
+      debugInfo.innerHTML = `
+                <strong>Botón activo:</strong> ${activeButton ? activeButton.getAttribute('aria-controls') : 'Ninguno'}<br>
+                <strong>Panel activo:</strong> ${activePanel ? activePanel.id : 'Ninguno'}<br>
+                <strong>CSS custom cargado:</strong> ${document.querySelector('link[href*="custom.css"]') ? 'Sí' : 'No'}<br>
+                <strong>Tailwind cargado:</strong> ${document.querySelector('script[src*="tailwindcss"]') ? 'Sí' : 'No'}
+            `;
+    }
+
+    function testShowTab() {
+      console.log('Probando showTab directamente...');
+      window.showTab('test2');
+      updateDebugInfo();
+    }
+
+    // Inicializar debug info
+    document.addEventListener('DOMContentLoaded', function () {
+      updateDebugInfo();
+    });
+  </script>
+</body>
+
+</html>

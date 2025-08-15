@@ -1,0 +1,5 @@
+.sidebar {
+  overflow-y: auto;
+  max-height: 100vh;
+  /* Si el layout es flex horizontal, asegúrate que el contenedor padre no limite la altura */
+}
