@@ -68,6 +68,78 @@ function populatePotrerosSelect(layer_Potreros) {
   };
 }
 
+// Calcular área de un polígono GeoJSON (aproximación) en hectáreas
+function polygonAreaHa(feature) {
+  try {
+    if (!feature || !feature.geometry) return 0;
+    const geom = feature.geometry;
+    if (geom.type === 'Polygon' || geom.type === 'MultiPolygon') {
+      // Extraer arrays de coordenadas y sumar áreas
+      let total = 0;
+      const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+      polys.forEach(poly => {
+        // poly: array of linear rings, exterior first
+        const exterior = poly[0];
+        const area = Math.abs(ringAreaMeters(exterior));
+        total += area;
+      });
+      // convertir m2 a hectareas
+      return total / 10000;
+    }
+    return 0;
+  } catch (e) {
+    console.warn('Error calculating polygon area', e);
+    return 0;
+  }
+}
+
+// Calcula el área de un anillo (ring) en metros cuadrados usando fórmula de shoelace sobre proyección equirectangular
+function ringAreaMeters(coords) {
+  if (!coords || coords.length < 3) return 0;
+  // Convertir lon/lat a metros aproximados (equirectangular)
+  const R = 6378137; // radio de la Tierra en metros
+  const toRad = Math.PI / 180;
+  let area = 0;
+  for (let i = 0; i < coords.length; i++) {
+    const [lon1, lat1] = coords[i];
+    const [lon2, lat2] = coords[(i + 1) % coords.length];
+    const x1 = lon1 * toRad * R * Math.cos(lat1 * toRad);
+    const y1 = lat1 * toRad * R;
+    const x2 = lon2 * toRad * R * Math.cos(lat2 * toRad);
+    const y2 = lat2 * toRad * R;
+    area += x1 * y2 - x2 * y1;
+  }
+  return area / 2;
+}
+
+// Suma superficies de los potreros en hectáreas: usa propiedades si existen, si no calcula a partir de la geometría
+function calculateTotalPotrerosAreaHa(layer_Potreros) {
+  let total = 0;
+  layer_Potreros.eachLayer(function (layer) {
+    try {
+      const feat = layer.feature;
+      if (feat && feat.properties) {
+        const p = feat.properties;
+        if (p.super_ha !== undefined && p.super_ha !== null && !isNaN(parseFloat(p.super_ha))) {
+          total += parseFloat(p.super_ha);
+          return;
+        }
+        if (p.superficie !== undefined && p.superficie !== null && !isNaN(parseFloat(p.superficie))) {
+          total += parseFloat(p.superficie);
+          return;
+        }
+      }
+      // Si no hay propiedades con superficie, intenta calcular por geometría
+      if (feat) {
+        total += polygonAreaHa(feat);
+      }
+    } catch (e) {
+      console.warn('Error calculando area feature', e);
+    }
+  });
+  return total;
+}
+
 function handlePotreroSelect(evt, items) {
   const val = evt.target.value;
   if (!val) {
@@ -305,6 +377,17 @@ function setupVectorLayers() {
       bounds_group.addLayer(layer_Potreros);
       map.addLayer(layer_Potreros);
       window.mapLayers['Potreros'] = layer_Potreros;
+
+      // Calcular y mostrar superficie total de potreros
+      try {
+        const totalHa = calculateTotalPotrerosAreaHa(layer_Potreros);
+        const el = document.getElementById('total-superficie');
+        if (el) el.textContent = String(totalHa.toFixed(2));
+      } catch (e) {
+        console.warn('Error calculando superficie total', e);
+        const el = document.getElementById('total-superficie');
+        if (el) el.textContent = 'N/A';
+      }
 
       // Centrar y ajustar el extent del mapa
       let bounds = null;
