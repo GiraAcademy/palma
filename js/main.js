@@ -198,128 +198,79 @@ function setupVectorLayers() {
     }
   }
 
+
+  // --- NUEVO: Cargar datos desde endpoint remoto ---
   map.createPane('pane_Lote_3');
   map.getPane('pane_Lote_3').style.zIndex = 403;
   map.getPane('pane_Lote_3').style['mix-blend-mode'] = 'normal';
-  var layer_Lote_3 = new L.geoJson(json_Lote_3, {
-    attribution: '',
-    interactive: true,
-    dataVar: 'json_Lote_3',
-    layerName: 'layer_Lote_3',
-    pane: 'pane_Lote_3',
-    onEachFeature: pop_Lote_3,
-    style: style_Lote_3_0,
-  });
-  bounds_group.addLayer(layer_Lote_3);
-  map.addLayer(layer_Lote_3);
-  window.mapLayers['Lote'] = layer_Lote_3;
-
-  // Capa Fotocentro
-  function pop_Fotocentro_4(feature, layer) {
-    // Crear contenido del popup mejorado
-    let popupContent = '<table style="font-family: Montserrat, sans-serif; font-size: 13px; line-height: 1.4;">';
-
-    // Fila de código (ahora como "Imagen: codigo")
-    if (feature.properties['codigo'] !== null) {
-      popupContent += '<tr><th scope="row" style="font-weight: 600; color: #0d9488; padding: 4px 8px 4px 0; text-align: left;">Imagen:</th><td style="padding: 4px 0;">' +
-        String(feature.properties['codigo']).replace(/'/g, '\'') + '</td></tr>';
-    }
-
-    // Fila de enlace (ahora como hipervínculo "Ver imagen")
-    if (feature.properties['Enlace Pú'] !== null && feature.properties['Enlace Pú'] !== '') {
-      const enlaceUrl = String(feature.properties['Enlace Pú']).replace(/'/g, '\'');
-      popupContent += '<tr><th scope="row" style="font-weight: 600; color: #0d9488; padding: 4px 8px 4px 0; text-align: left;">Enlace:</th><td style="padding: 4px 0;"><a href="' +
-        enlaceUrl + '" target="_blank" style="color: #3b82f6; text-decoration: none; font-weight: 500; border-bottom: 1px solid #3b82f6;">🔗 Ver imagen</a></td></tr>';
-    }
-
-    popupContent += '</table>';
-
-    var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-    layer.on('popupopen', function (e) {
-      addClassToPopupIfMedia(content, e.popup);
-    });
-    layer.bindPopup(content, { maxHeight: 400 });
-
-    layer.on('click', function (e) {
-      showFotocentroImage(feature.properties, layer);
-    });
-  }
-
-  function style_Fotocentro_4_0(feature) {
-    // Obtener el código del fotocentro
-    const codigo = feature?.properties?.codigo;
-    const userData = codigo ? fotocentroUserData[codigo] : null;
-
-    // Estilo base (por defecto - amarillo)
-    let fillColor = 'rgba(240,234,4,1.0)'; // Amarillo por defecto
-    let color = 'rgba(0,0,0,1.0)'; // Borde negro por defecto
-    let radius = 4.4;
-    let weight = 2.0;
-
-    // Aplicar estilos según las acciones del usuario
-    if (userData) {
-      if (userData.mark === 'problem') {
-        // Fotocentro marcado como problemático - rojo
-        fillColor = 'rgba(220,38,38,1.0)'; // red-600
-        color = 'rgba(127,29,29,1.0)'; // red-900 para el borde
-        radius = 5.5; // Ligeramente más grande
-        weight = 2.5;
-      } else if (userData.mark === 'attention') {
-        // Fotocentro marcado para revisar - naranja
-        fillColor = 'rgba(234,88,12,1.0)'; // orange-600
-        color = 'rgba(154,52,18,1.0)'; // orange-900 para el borde
-        radius = 5.5; // Ligeramente más grande
-        weight = 2.5;
-      } else if (userData.note) {
-        // Fotocentro con observación - azul
-        fillColor = 'rgba(59,130,246,1.0)'; // blue-500
-        color = 'rgba(30,58,138,1.0)'; // blue-900 para el borde
-        radius = 5.0; // Poco más grande
-        weight = 2.5;
-      }
-    }
-
-    return {
-      pane: 'pane_Fotocentro_4',
-      radius: radius,
-      opacity: 1,
-      color: color,
-      dashArray: '',
-      lineCap: 'butt',
-      lineJoin: 'miter',
-      weight: weight,
-      fill: true,
-      fillOpacity: 1,
-      fillColor: fillColor,
-      interactive: true,
-    }
-  }
 
   map.createPane('pane_Fotocentro_4');
   map.getPane('pane_Fotocentro_4').style.zIndex = 404;
   map.getPane('pane_Fotocentro_4').style['mix-blend-mode'] = 'normal';
-  var layer_Fotocentro_4 = new L.geoJson(json_Fotocentro_4, {
-    attribution: '',
-    interactive: true,
-    dataVar: 'json_Fotocentro_4',
-    layerName: 'layer_Fotocentro_4',
-    pane: 'pane_Fotocentro_4',
-    onEachFeature: pop_Fotocentro_4,
-    pointToLayer: function (feature, latlng) {
-      var context = {
-        feature: feature,
-        variables: {}
-      };
-      return L.circleMarker(latlng, style_Fotocentro_4_0(feature));
-    },
-  });
-  bounds_group.addLayer(layer_Fotocentro_4);
-  window.mapLayers['Fotocentro'] = layer_Fotocentro_4;
 
-  // Actualizar estilos basados en datos del usuario después de crear la capa
-  setTimeout(() => {
-    updateFotocentroStyles();
-  }, 100);
+  fetch('https://palma.gira360.com/potreros')
+    .then(response => response.json())
+    .then(data => {
+      // Se espera que el endpoint retorne un objeto con propiedades "lotes" y "fotocentros" tipo GeoJSON
+      // Si el endpoint retorna directamente un GeoJSON, ajusta aquí
+      const lotesGeoJson = data.lotes || data.lote || data.Lote || data;
+      const fotocentrosGeoJson = data.fotocentros || data.fotocentro || data.Fotocentro || data;
+
+      // Capa Lote
+      var layer_Lote_3 = new L.geoJson(lotesGeoJson, {
+        attribution: '',
+        interactive: true,
+        dataVar: 'json_Lote_3',
+        layerName: 'layer_Lote_3',
+        pane: 'pane_Lote_3',
+        onEachFeature: pop_Lote_3,
+        style: style_Lote_3_0,
+      });
+      bounds_group.addLayer(layer_Lote_3);
+      map.addLayer(layer_Lote_3);
+      window.mapLayers['Lote'] = layer_Lote_3;
+
+      // Capa Fotocentro
+      var layer_Fotocentro_4 = new L.geoJson(fotocentrosGeoJson, {
+        attribution: '',
+        interactive: true,
+        dataVar: 'json_Fotocentro_4',
+        layerName: 'layer_Fotocentro_4',
+        pane: 'pane_Fotocentro_4',
+        onEachFeature: pop_Fotocentro_4,
+        pointToLayer: function (feature, latlng) {
+          var context = {
+            feature: feature,
+            variables: {}
+          };
+          return L.circleMarker(latlng, style_Fotocentro_4_0(feature));
+        },
+      });
+      bounds_group.addLayer(layer_Fotocentro_4);
+      window.mapLayers['Fotocentro'] = layer_Fotocentro_4;
+
+      // Actualizar estilos basados en datos del usuario después de crear la capa
+      setTimeout(() => {
+        updateFotocentroStyles();
+      }, 100);
+
+      // --- NUEVO: Centrar y ajustar el extent del mapa ---
+      // Unir los bounds de lotes y fotocentros si ambos existen
+      let bounds = null;
+      if (layer_Lote_3.getBounds && layer_Fotocentro_4.getBounds) {
+        bounds = layer_Lote_3.getBounds().extend(layer_Fotocentro_4.getBounds());
+      } else if (layer_Lote_3.getBounds) {
+        bounds = layer_Lote_3.getBounds();
+      } else if (layer_Fotocentro_4.getBounds) {
+        bounds = layer_Fotocentro_4.getBounds();
+      }
+      if (bounds) {
+        map.fitBounds(bounds, { maxZoom: 19 });
+      }
+    })
+    .catch(error => {
+      console.error('Error al cargar datos desde el endpoint:', error);
+    });
 }
 
 // Funcionalidad de pestañas accesible y semántica
