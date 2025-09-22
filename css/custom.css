@@ -467,3 +467,46 @@
 .leaflet-popup-tip {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1) !important;
 }
+
+/* Attributes panel (sidebar-contained) */
+.attributes-modal { position: fixed; width: 100%; left: 12px; right: 12px; bottom: 12px; z-index: 2000; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
+.attributes-modal[hidden] { display: none; }
+.attributes-modal__content { position: relative; width: calc(100% - 24px); max-width: 1200px; max-height: 54vh; background:#fff; color:#111827; border-radius:8px; overflow:hidden; box-shadow:0 8px 32px rgba(2,6,23,0.12); pointer-events:auto; transform-origin:bottom center; transform:translateY(8px) scaleY(0.995); opacity:0; transition:transform 200ms cubic-bezier(.2,.9,.2,1), opacity 200ms ease; }
+.attributes-modal.open .attributes-modal__content { transform:translateY(0) scaleY(1); opacity:1 }
+.attributes-modal__header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid rgba(14,20,24,0.06)}
+.attributes-modal__header h3{margin:0;font-size:14px;font-weight:700;color:#0f1724}
+.attributes-modal__header button{background:transparent;border:0;color:#475569;font-size:18px;cursor:pointer}
+.attributes-modal__toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid rgba(14,20,24,0.04)}
+.attributes-modal__left{color:#334155;font-size:13px}
+.attributes-modal__right{display:flex;gap:8px;align-items:center}
+.attributes-modal__right input{padding:10px 12px;border-radius:8px;border:1px solid rgba(2,6,23,0.06);background:#fff;color:#0f1724;width:300px;box-shadow:inset 0 1px 0 rgba(2,6,23,0.02)}
+.attributes-modal__right button{padding:8px 10px;border-radius:6px;background:#0d9488;border:0;color:#fff;font-weight:700;cursor:pointer}
+.attributes-modal__body{overflow:auto;height:calc(46vh - 92px);padding:8px 12px}
+.attributes-modal__body table{width:100%;border-collapse:collapse;font-size:12px;color:#0f1724}
+.attributes-modal__body thead th{position:sticky;top:0;background:#f8fafc;color:#0f1724;padding:8px 10px;text-align:left;border-bottom:1px solid rgba(14,20,24,0.04)}
+
+@media (max-width: 1024px) {
+    .attributes-modal { left:8px; right:8px; bottom:8px }
+    .attributes-modal__content { width: calc(100% - 16px); max-height: 62vh }
+    .attributes-modal__right input { width: 160px }
+}
+
+@media (max-width: 640px) {
+    .attributes-modal { left:6px; right:6px; bottom:6px }
+    .attributes-modal__content { width: calc(100% - 12px); border-radius:6px }
+    .attributes-modal__right input { width: 110px }
+}
+
+/* Desktop: make panel span the full map area (to the right of the sidebar) */
+@media (min-width: 1024px) {
+    /* Sidebar width on desktop is 320px (w-80). Align the left edge to sit after the sidebar. */
+    .attributes-modal { left: 320px; right: 12px; bottom: 12px; justify-content: flex-start; }
+    .attributes-modal__content { width: calc(100% - 332px); max-width: none; border-radius: 0.5rem 0.5rem 0.5rem 0.5rem; }
+    /* remove top rounding to visually flush with the map border if desired */
+    .attributes-modal__content { border-top-left-radius: 0.5rem; border-top-right-radius: 0.5rem; }
+    .attributes-modal__content::before { display: none; }
+}
+.attributes-modal__body tbody td{padding:8px 10px;border-bottom:1px solid rgba(14,20,24,0.04);vertical-align:middle}
+.attributes-modal__body tbody tr{cursor:pointer}
+.attributes-modal__body tbody tr:hover{background:rgba(2,6,23,0.02)}
+.attributes-modal__body .row-index{width:44px;text-align:right;color:#475569}

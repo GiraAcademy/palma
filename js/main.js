@@ -913,3 +913,120 @@ function setupMobileMenu() {
 console.log('main.js cargado - funciones disponibles para inicialización');
 
 // Coordinate display system removed per user request
+
+// --- Attributes panel wiring for Potreros ---
+function buildAttributesTableFromPotreros() {
+  const tableContainer = document.getElementById('attributes-table');
+  const countEl = document.getElementById('attributes-count');
+  if (!tableContainer) return [];
+  const layer = window.mapLayers && window.mapLayers['Potreros'];
+  if (!layer) {
+    tableContainer.innerHTML = '<div style="padding:12px;color:#374151">No hay datos de Potreros disponibles.</div>';
+    if (countEl) countEl.textContent = 'Total: 0';
+    return [];
+  }
+  const items = [];
+  layer.eachLayer(function (ly) {
+    try { items.push({ props: (ly.feature && ly.feature.properties) ? ly.feature.properties : {}, layer: ly }); } catch (e) { }
+  });
+  if (items.length === 0) {
+    tableContainer.innerHTML = '<div style="padding:12px;color:#374151">No se encontraron features en la capa Potreros.</div>';
+    if (countEl) countEl.textContent = 'Total: 0';
+    return items;
+  }
+
+  // union de claves
+  const allKeys = new Set();
+  items.forEach(it => Object.keys(it.props || {}).forEach(k => allKeys.add(k)));
+  const keys = Array.from(allKeys);
+
+  // construir tabla
+  let html = '<div class="attributes-table-wrapper">';
+  html += '<table id="attributes-data-table" class="attributes-data-table"><thead><tr>';
+  html += '<th class="row-index">#</th>';
+  keys.forEach(k => { html += `<th>${k}</th>`; });
+  html += '</tr></thead><tbody>';
+  items.forEach((it, i) => {
+    html += `<tr data-idx="${i}" tabindex="0">`;
+    html += `<td class="row-index">${i+1}</td>`;
+    keys.forEach(k => { html += `<td>${it.props[k] !== undefined ? String(it.props[k]) : ''}</td>`; });
+    html += '</tr>';
+  });
+  html += '</tbody></table></div>';
+  tableContainer.innerHTML = html;
+  if (countEl) countEl.textContent = `Total: ${items.length}`;
+
+  // wire row clicks
+  const rows = document.querySelectorAll('#attributes-data-table tbody tr');
+  rows.forEach(row => {
+    row.addEventListener('click', function () {
+      const idx = parseInt(this.getAttribute('data-idx'), 10);
+      const item = items[idx];
+      if (!item) return;
+      const lyr = item.layer;
+      try {
+        if (lyr.getBounds) map.fitBounds(lyr.getBounds(), { maxZoom: 19 });
+        else if (lyr.getLatLng) map.setView(lyr.getLatLng(), 18);
+        if (lyr.openPopup) lyr.openPopup();
+        const modal = document.getElementById('attributes-modal'); if (modal) modal.classList.remove('open');
+      } catch (e) { console.warn('Error centrar feature desde tabla', e); }
+    });
+    row.addEventListener('keydown', function (evt) { if (evt.key === 'Enter' || evt.key === ' ') { evt.preventDefault(); this.click(); } });
+  });
+
+  return items;
+}
+
+// Toggle handler
+document.addEventListener('DOMContentLoaded', function () {
+  const btn = document.getElementById('potreros-attrs-btn');
+  const closeBtn = document.getElementById('attributes-modal-close');
+  const modal = document.getElementById('attributes-modal');
+  const searchInput = document.getElementById('attributes-search');
+  const exportBtn = document.getElementById('attributes-export');
+
+  if (btn) {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (!modal) return;
+      if (modal.classList.contains('open')) {
+        modal.classList.remove('open');
+      } else {
+        buildAttributesTableFromPotreros();
+        modal.classList.add('open');
+      }
+    });
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', function () { const m = document.getElementById('attributes-modal'); if (m) m.classList.remove('open'); });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function (e) {
+      const q = (e.target.value || '').toLowerCase();
+      const rows = document.querySelectorAll('#attributes-data-table tbody tr');
+      rows.forEach(r => { const text = r.textContent.toLowerCase(); r.style.display = text.indexOf(q) !== -1 ? '' : 'none'; });
+    });
+  }
+
+  if (exportBtn) {
+    exportBtn.addEventListener('click', function () {
+      // export currently visible rows
+      const table = document.getElementById('attributes-data-table');
+      if (!table) return;
+      const rows = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent.trim()).slice(1);
+      const dataRows = [];
+      table.querySelectorAll('tbody tr').forEach(tr => {
+        if (tr.style.display === 'none') return; // skip hidden
+        const cells = Array.from(tr.querySelectorAll('td')).slice(1).map(td => td.textContent.replace(/\"/g, '"'));
+        dataRows.push(cells);
+      });
+      const csvRows = [];
+      csvRows.push(rows.map(h => `"${h.replace(/"/g,'""')}"`).join(','));
+      dataRows.forEach(r => csvRows.push(r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')));
+      const csv = csvRows.join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'potreros_atributos.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    });
+  }
+});

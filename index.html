@@ -129,16 +129,19 @@
                                     <input type="checkbox" id="Potreros" checked aria-checked="true"
                                         class="w-[18px] h-[18px] accent-teal-600 cursor-pointer hover:scale-110 disabled:opacity-60 disabled:cursor-not-allowed">
                                     <label for="Potreros" class="flex-1 cursor-pointer text-sm">🟩 Potreros</label>
+                                    <button id="potreros-attrs-btn" title="Ver atributos" class="ml-2 p-1 rounded-md text-gray-600" aria-label="Ver atributos de Potreros">⋯</button>
                                 </div>
                             </section>
 
                             <!-- Footer con copyright -->
-                            <footer class="mt-8 pt-4 border-t border-slate-200 relative z-10">
-                                <div class="text-center text-xs text-gray-500 mb-2">
-                                    © 2025 GIRA - Grupo de Investigación en<br>
-                                    Recursos Agrícolas
-                                </div>
-                            </footer>
+                                <footer class="mt-8 pt-4 border-t border-slate-200 relative z-10">
+                                    <div class="text-center text-xs text-gray-500 mb-2">
+                                        © 2025 GIRA - Grupo de Investigación en<br>
+                                        Recursos Agrícolas
+                                    </div>
+                                </footer>
+
+                            
                         </section>
 
                         <!-- Pestaña Análisis -->
@@ -503,6 +506,25 @@
             }, 200);
         }
     </script>
+    <!-- Attributes panel placed over the map bottom -->
+    <div id="attributes-modal" class="attributes-modal" aria-hidden="true">
+        <div class="attributes-modal__content" role="region" aria-label="Atributos de Potreros">
+            <div class="attributes-modal__header">
+                <h3>Tabla de Atributos - Potreros</h3>
+                <button id="attributes-modal-close" title="Cerrar atributos">✕</button>
+            </div>
+            <div class="attributes-modal__toolbar">
+                <div class="attributes-modal__left" id="attributes-count">Total: 0</div>
+                <div class="attributes-modal__right">
+                    <input id="attributes-search" placeholder="Buscar en los atributos..." aria-label="Buscar atributos" />
+                    <button id="attributes-export" title="Exportar CSV">Exportar</button>
+                </div>
+            </div>
+            <div class="attributes-modal__body">
+                <div id="attributes-table" tabindex="0" aria-live="polite"></div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
