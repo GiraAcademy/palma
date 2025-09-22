@@ -26,6 +26,120 @@ function initializeMap() {
   bounds_group = new L.featureGroup([]);
 }
 
+// Poblar select de potreros y manejar selección
+function populatePotrerosSelect(layer_Potreros) {
+  const select = document.getElementById('select-potreros');
+  if (!select) return;
+
+  // Vaciar opciones excepto la primera
+  select.innerHTML = '<option value="">-- Seleccione un potrero --</option>';
+
+  const items = [];
+  let counter = 0;
+  layer_Potreros.eachLayer(function (layer) {
+    try {
+      const props = layer.feature && layer.feature.properties ? layer.feature.properties : {};
+      const nombre = props.nombre || props.NOMBRE || (`Potrero ${counter + 1}`);
+      items.push({ id: counter, nombre: String(nombre), layer: layer });
+      counter += 1;
+    } catch (e) {
+      console.warn('Error leyendo feature Potreros', e);
+    }
+  });
+
+  // Ordenar por nombre
+  items.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+  // Reasignar ids para que correspondan a la posición en el array ordenado
+  items.forEach((item, i) => {
+    item.id = i;
+  });
+
+  items.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.id;
+    opt.textContent = item.nombre;
+    select.appendChild(opt);
+  });
+
+  // Listener de selección (asignación única)
+  select.onchange = function (evt) {
+    handlePotreroSelect(evt, items);
+  };
+}
+
+function handlePotreroSelect(evt, items) {
+  const val = evt.target.value;
+  if (!val) {
+    // limpiar resaltado si se selecciona la opción vacía
+    clearPotreroHighlight();
+    return;
+  }
+  const idx = parseInt(val, 10);
+  const item = items.find(i => i.id === idx);
+  if (!item) return;
+
+  // Hacer fitBounds y abrir popup
+  try {
+    const layer = item.layer;
+    if (layer.getBounds) {
+      map.fitBounds(layer.getBounds(), { maxZoom: 19 });
+    } else if (layer.getLatLng) {
+      map.setView(layer.getLatLng(), 18);
+    }
+    if (layer.openPopup) layer.openPopup();
+    // Resaltar potrero seleccionado
+    clearPotreroHighlight();
+    highlightPotreroLayer(layer);
+  } catch (e) {
+    console.warn('No se pudo centrar potrero seleccionado', e);
+  }
+}
+
+// Estado simple para el layer resaltado
+window._highlightedPotreroLayer = window._highlightedPotreroLayer || null;
+
+function highlightPotreroLayer(layer) {
+  try {
+    if (!layer) return;
+    // Guardar referencia
+    window._highlightedPotreroLayer = layer;
+    // Aplicar estilo de resaltado según tipo
+    if (layer.setStyle) {
+      layer.setStyle({
+        color: '#ff0000',
+        weight: 4,
+        dashArray: '',
+        fillOpacity: 0
+      });
+    } else if (layer.setIcon) {
+      // puntos (si aplica)
+      // ...no implementado por ahora
+    }
+  } catch (e) {
+    console.warn('Error resaltando potrero', e);
+  }
+}
+
+function clearPotreroHighlight() {
+  try {
+    const prev = window._highlightedPotreroLayer;
+    if (!prev) return;
+    // Restaurar estilo por defecto
+    if (prev.setStyle && prev.feature) {
+      // Intentar re-aplicar estilo original definido en la capa (si existe)
+      prev.setStyle({
+        color: 'rgba(24, 236, 64, 1.0)',
+        weight: 2.0,
+        fillOpacity: 0,
+      });
+    }
+    window._highlightedPotreroLayer = null;
+  } catch (e) {
+    console.warn('Error limpiando highlight potrero', e);
+  }
+}
+
 // Funciones de utilidad para popups
 function removeEmptyRowsFromPopupContent(content, feature) {
   var tempDiv = document.createElement('div');
@@ -203,6 +317,13 @@ function setupVectorLayers() {
 
       // Asignar listeners a los checkboxes después de crear la capa
       setupLayerCheckboxes();
+
+      // Poblar el select de potreros en la pestaña Análisis
+      try {
+        populatePotrerosSelect(layer_Potreros);
+      } catch (e) {
+        console.warn('Error populating potreros select', e);
+      }
     })
     .catch(error => {
       console.error('Error al cargar datos desde el endpoint:', error);
