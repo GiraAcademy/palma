@@ -4,6 +4,7 @@ module.exports = {
     "./index.html",
     "./js/**/*.js"
   ],
+  // Eliminadas referencias a archivos locales de 'data/'. Ahora solo se consume el endpoint externo.
   theme: {
     extend: {
       colors: {

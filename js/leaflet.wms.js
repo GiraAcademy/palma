@@ -10,7 +10,7 @@
     if (typeof define === 'function' && define.amd) {
         // AMD
         define(['leaflet'], factory);
-    } else if (typeof module !== 'undefined') {
+// Eliminadas referencias a archivos locales de 'data/'. Ahora solo se consume el endpoint externo.
         // Node/CommonJS
         module.exports = factory(require('leaflet'));
     } else {

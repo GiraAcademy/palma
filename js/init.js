@@ -10,8 +10,7 @@
       { name: 'Leaflet', check: () => typeof L !== 'undefined' },
       { name: 'Autolinker', check: () => typeof Autolinker !== 'undefined' },
       { name: 'DOM elementos', check: () => document.getElementById('map') !== null },
-      { name: 'Datos Lote', check: () => typeof json_Lote_3 !== 'undefined' },
-      { name: 'Datos Fotocentro', check: () => typeof json_Fotocentro_4 !== 'undefined' },
+  // Eliminadas dependencias de datos locales, solo se verifica Leaflet y DOM
       { name: 'Main.js', check: () => typeof initializeApp === 'function' }
     ];
 

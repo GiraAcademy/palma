@@ -1,3 +1,6 @@
+  console.log('Inicializando Leaflet map...');
+  console.log('Configurando capas base...');
+  console.log('Configurando capas vectoriales y fetch de potreros...');
 // Aplicación principal Panama AZORD - Control de Imágenes Caña de Azúcar
 
 // Variables globales
@@ -102,7 +105,7 @@ function setupControls() {
       L.DomEvent.on(container, 'click', function (e) {
         L.DomEvent.stopPropagation(e);
         // Regresar a las coordenadas y zoom iniciales
-        map.setView([8.442552824913611, -82.55167253653119], 18);
+        map.setView([9.6659, -68.3426], 14);
       });
 
       // Prevenir propagación de eventos del mapa
@@ -130,143 +133,62 @@ function setupBaseLayers() {
   });
   map.addLayer(layer_GoogleSatelliteHybrid_0);
 
-  // Ortomosaico
-  map.createPane('pane_Ortomosaico_1');
-  map.getPane('pane_Ortomosaico_1').style.zIndex = 401;
-  var img_Ortomosaico_1 = 'data/Ortomosaico_1.png';
-  var img_bounds_Ortomosaico_1 = [[8.440501064412633, -82.55445003351738], [8.44458670857281, -82.54906590688061]];
-  var layer_Ortomosaico_1 = new L.imageOverlay(img_Ortomosaico_1, img_bounds_Ortomosaico_1, { pane: 'pane_Ortomosaico_1' });
-  bounds_group.addLayer(layer_Ortomosaico_1);
-  map.addLayer(layer_Ortomosaico_1);
-
-  // Clasificación
-  map.createPane('pane_Clasificacion_2');
-  map.getPane('pane_Clasificacion_2').style.zIndex = 402;
-  var img_Clasificacion_2 = 'data/Clasificacion_2.png';
-  var img_bounds_Clasificacion_2 = [[8.440501444090456, -82.55445005683231], [8.444587090047246, -82.54906547613166]];
-  var layer_Clasificacion_2 = new L.imageOverlay(img_Clasificacion_2, img_bounds_Clasificacion_2, { pane: 'pane_Clasificacion_2' });
-  bounds_group.addLayer(layer_Clasificacion_2);
-
   // Actualizar objeto global de capas
-  window.mapLayers = {
-    'GoogleSatelliteHybrid': layer_GoogleSatelliteHybrid_0,
-    'Ortomosaico': layer_Ortomosaico_1,
-    'Clasificacion': layer_Clasificacion_2,
-    'Lote': null,
-    'Fotocentro': null
-  };
+  if (!window.mapLayers) window.mapLayers = {};
+  window.mapLayers['GoogleSatelliteHybrid'] = layer_GoogleSatelliteHybrid_0;
+  window.mapLayers['Potreros'] = window.mapLayers['Potreros'] || null;
 }
 
 // Configuración de capas vectoriales
 function setupVectorLayers() {
-  // Capa Lote
-  function pop_Lote_3(feature, layer) {
-    // Crear contenido del popup mejorado para lote
-    let popupContent = '<table style="font-family: Montserrat, sans-serif; font-size: 13px; line-height: 1.4;">';
-
-    // Fila del nombre del lote
-    popupContent += '<tr><th scope="row" style="font-weight: 600; color: #0d9488; padding: 4px 8px 4px 0; text-align: left;">Lote:</th><td style="padding: 4px 0; font-weight: 500;">Esperanza</td></tr>';
-
-    // Fila del área en hectáreas (convertir de m² a ha)
-    if (feature.properties['ha'] !== null) {
-      const areaM2 = parseFloat(feature.properties['ha']);
-      const areaHa = (areaM2 / 10000).toFixed(2); // Convertir m² a hectáreas
-      popupContent += '<tr><th scope="row" style="font-weight: 600; color: #0d9488; padding: 4px 8px 4px 0; text-align: left;">Área:</th><td style="padding: 4px 0; font-weight: 500;">' +
-        areaHa + ' ha</td></tr>';
-    }
-
-    popupContent += '</table>';
-
-    var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-    layer.on('popupopen', function (e) {
-      addClassToPopupIfMedia(content, e.popup);
-    });
-    layer.bindPopup(content, { maxHeight: 400 });
-  }
-
-  function style_Lote_3_0() {
-    return {
-      pane: 'pane_Lote_3',
-      opacity: 1,
-      color: 'rgba(236,24,64,1.0)',
-      dashArray: '',
-      lineCap: 'square',
-      lineJoin: 'bevel',
-      weight: 2.0,
-      fillOpacity: 0,
-      interactive: true,
-    }
-  }
+  // ...solo lógica para potreros...
 
 
   // --- NUEVO: Cargar datos desde endpoint remoto ---
-  map.createPane('pane_Lote_3');
-  map.getPane('pane_Lote_3').style.zIndex = 403;
-  map.getPane('pane_Lote_3').style['mix-blend-mode'] = 'normal';
-
-  map.createPane('pane_Fotocentro_4');
-  map.getPane('pane_Fotocentro_4').style.zIndex = 404;
-  map.getPane('pane_Fotocentro_4').style['mix-blend-mode'] = 'normal';
+  map.createPane('pane_Potreros');
+  map.getPane('pane_Potreros').style.zIndex = 403;
+  map.getPane('pane_Potreros').style['mix-blend-mode'] = 'normal';
 
   fetch('https://palma.gira360.com/potreros')
     .then(response => response.json())
     .then(data => {
-      // Se espera que el endpoint retorne un objeto con propiedades "lotes" y "fotocentros" tipo GeoJSON
-      // Si el endpoint retorna directamente un GeoJSON, ajusta aquí
-      const lotesGeoJson = data.lotes || data.lote || data.Lote || data;
-      const fotocentrosGeoJson = data.fotocentros || data.fotocentro || data.Fotocentro || data;
+      // Se espera que el endpoint retorne un objeto con propiedades "potreros" tipo GeoJSON
+      const potrerosGeoJson = data.potreros || data.Potreros || data;
 
-      // Capa Lote
-      var layer_Lote_3 = new L.geoJson(lotesGeoJson, {
+      // Capa Potreros
+      var layer_Potreros = new L.geoJson(potrerosGeoJson, {
         attribution: '',
         interactive: true,
-        dataVar: 'json_Lote_3',
-        layerName: 'layer_Lote_3',
-        pane: 'pane_Lote_3',
-        onEachFeature: pop_Lote_3,
-        style: style_Lote_3_0,
-      });
-      bounds_group.addLayer(layer_Lote_3);
-      map.addLayer(layer_Lote_3);
-      window.mapLayers['Lote'] = layer_Lote_3;
-
-      // Capa Fotocentro
-      var layer_Fotocentro_4 = new L.geoJson(fotocentrosGeoJson, {
-        attribution: '',
-        interactive: true,
-        dataVar: 'json_Fotocentro_4',
-        layerName: 'layer_Fotocentro_4',
-        pane: 'pane_Fotocentro_4',
-        onEachFeature: pop_Fotocentro_4,
-        pointToLayer: function (feature, latlng) {
-          var context = {
-            feature: feature,
-            variables: {}
-          };
-          return L.circleMarker(latlng, style_Fotocentro_4_0(feature));
+        dataVar: 'json_Potreros',
+        layerName: 'layer_Potreros',
+        pane: 'pane_Potreros',
+        style: {
+          pane: 'pane_Potreros',
+          opacity: 1,
+          color: 'rgba(24, 236, 64, 1.0)',
+          dashArray: '',
+          lineCap: 'square',
+          lineJoin: 'bevel',
+          weight: 2.0,
+          fillOpacity: 0.2,
+          interactive: true,
         },
       });
-      bounds_group.addLayer(layer_Fotocentro_4);
-      window.mapLayers['Fotocentro'] = layer_Fotocentro_4;
+      bounds_group.addLayer(layer_Potreros);
+      map.addLayer(layer_Potreros);
+      window.mapLayers['Potreros'] = layer_Potreros;
 
-      // Actualizar estilos basados en datos del usuario después de crear la capa
-      setTimeout(() => {
-        updateFotocentroStyles();
-      }, 100);
-
-      // --- NUEVO: Centrar y ajustar el extent del mapa ---
-      // Unir los bounds de lotes y fotocentros si ambos existen
+      // Centrar y ajustar el extent del mapa
       let bounds = null;
-      if (layer_Lote_3.getBounds && layer_Fotocentro_4.getBounds) {
-        bounds = layer_Lote_3.getBounds().extend(layer_Fotocentro_4.getBounds());
-      } else if (layer_Lote_3.getBounds) {
-        bounds = layer_Lote_3.getBounds();
-      } else if (layer_Fotocentro_4.getBounds) {
-        bounds = layer_Fotocentro_4.getBounds();
+      if (layer_Potreros.getBounds) {
+        bounds = layer_Potreros.getBounds();
       }
       if (bounds) {
         map.fitBounds(bounds, { maxZoom: 19 });
       }
+
+      // Asignar listeners a los checkboxes después de crear la capa
+      setupLayerCheckboxes();
     })
     .catch(error => {
       console.error('Error al cargar datos desde el endpoint:', error);
@@ -327,26 +249,44 @@ function handleLayerToggle(evt) {
   const checkbox = evt.target;
   const layerName = checkbox.id;
   const layer = window.mapLayers[layerName];
-  if (!layer) return;
+  if (!layer) {
+    console.log(`[LayerToggle] Layer '${layerName}' not available.`);
+    return;
+  }
   if (checkbox.checked) {
     if (!map.hasLayer(layer)) {
+      console.log(`[LayerToggle] Adding layer '${layerName}' to map.`);
       map.addLayer(layer);
+    } else {
+      console.log(`[LayerToggle] Layer '${layerName}' already on map.`);
     }
   } else {
     if (map.hasLayer(layer)) {
+      console.log(`[LayerToggle] Removing layer '${layerName}' from map.`);
       map.removeLayer(layer);
+    } else {
+      console.log(`[LayerToggle] Layer '${layerName}' already removed.`);
     }
   }
 }
 
 // Asignar listeners a los checkboxes de capas
 function setupLayerCheckboxes() {
-  const layerIds = ['GoogleSatelliteHybrid', 'Ortomosaico', 'Clasificacion', 'Lote', 'Fotocentro'];
+  const layerIds = ['GoogleSatelliteHybrid', 'Potreros'];
   layerIds.forEach(id => {
     const checkbox = document.getElementById(id);
+    const layer = window.mapLayers[id];
     if (checkbox) {
       checkbox.removeEventListener('change', handleLayerToggle); // evitar duplicados
       checkbox.addEventListener('change', handleLayerToggle);
+      // Set checkbox state to match layer visibility
+      if (layer) {
+        checkbox.disabled = false;
+        checkbox.checked = map.hasLayer(layer);
+      } else {
+        checkbox.disabled = true;
+        checkbox.checked = false;
+      }
     }
   });
 }
@@ -634,7 +574,7 @@ function initializeApp() {
   });
 
   // Inicializar variables globales
-  window.mapLayers = {};
+  if (!window.mapLayers) window.mapLayers = {};
   window.selectedMarker = null;
 
   console.log('Configurando mapa y capas...');
