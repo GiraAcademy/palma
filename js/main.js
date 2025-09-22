@@ -162,17 +162,31 @@ function setupVectorLayers() {
         dataVar: 'json_Potreros',
         layerName: 'layer_Potreros',
         pane: 'pane_Potreros',
-        style: {
-          pane: 'pane_Potreros',
-          opacity: 1,
-          color: 'rgba(24, 236, 64, 1.0)',
-          dashArray: '',
-          lineCap: 'square',
-          lineJoin: 'bevel',
-          weight: 2.0,
-          fillOpacity: 0.2,
-          interactive: true,
+        style: function(feature) {
+          return {
+            pane: 'pane_Potreros',
+            opacity: 1,
+            color: 'rgba(24, 236, 64, 1.0)',
+            dashArray: '',
+            lineCap: 'square',
+            lineJoin: 'bevel',
+            weight: 2.0,
+            fillOpacity: 0, // sin relleno
+            interactive: true,
+          };
         },
+        onEachFeature: function(feature, layer) {
+          try {
+            var props = feature.properties || {};
+            var nombre = props.nombre || props.NOMBRE || 'Sin nombre';
+            var super_ha = (props.super_ha !== undefined) ? props.super_ha : (props.superficie || 'N/A');
+            var popupHtml = '<div style="font-weight:700;color:#0d9488;">' + nombre + '</div>' +
+              '<div style="margin-top:6px;font-size:13px;color:#374151;">Superficie: ' + super_ha + ' ha</div>';
+            layer.bindPopup(popupHtml);
+          } catch (e) {
+            console.warn('Error binding popup Potrero', e);
+          }
+        }
       });
       bounds_group.addLayer(layer_Potreros);
       map.addLayer(layer_Potreros);
